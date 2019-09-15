@@ -1,29 +1,54 @@
 package br.com.ufms.so.jantardosfilosofos;
 
+import java.util.concurrent.Semaphore;
+
 public class Mesa {
 
-    public static void main(String[] args) {
+    /**
+     * Semaforo para controlar o acesso compartilhado
+     * passando por parametro o valor 1, indicando que
+     * o semaforo esta disponivel.
+     */
+    static Semaphore mutex = new Semaphore(1);
+    static int quantidadeFilosofos = 5;
+
+    static int[] estadoFilosofo = new int[quantidadeFilosofos];
+    static Semaphore[] semaforos = new Semaphore[quantidadeFilosofos];
+    static Filosofo[] filosofos = new Filosofo[quantidadeFilosofos];
+
+     public static void main(String[] args) {
         inicializarMesa();
 
     }
 
     public static void inicializarMesa(){
-        Garfo kitGarfos1 = new Garfo(5, 1);
-        Garfo kitGarfos2 = new Garfo(1, 2);
-        Garfo kitGarfos3 = new Garfo(2, 3);
-        Garfo kitGarfos4 = new Garfo(3, 4);
-        Garfo kitGarfos5 = new Garfo(4, 5);
+        for (int i = 0; i < estadoFilosofo.length; i++) {
+            estadoFilosofo[i] = 0;
+        }
 
-        Filosofo pensadorContemporaneo1 = new Filosofo("Valesca Poposuda", kitGarfos1);
-        Filosofo pensadorContemporaneo2 = new Filosofo("Falcão", kitGarfos2);
-        Filosofo pensadorContemporaneo3 = new Filosofo(" Otávio Bundasseca", kitGarfos3);
-        Filosofo pensadorContemporaneo4 = new Filosofo(" Aberta Demais De Oliveira.", kitGarfos4);
-        Filosofo pensadorContemporaneo5 = new Filosofo(" Jean Claude Van Dame Da Silva", kitGarfos5);
+        filosofos[0] = new Filosofo("Sócrates", 0);
+        filosofos[1] = new Filosofo("Platão", 1);
+        filosofos[2] = new Filosofo("Aristótoles", 2);
+        filosofos[3] = new Filosofo("Tales", 3);
+        filosofos[4] = new Filosofo("Parmênides", 4);
 
-        new Thread(pensadorContemporaneo1).start();
-        new Thread(pensadorContemporaneo2).start();
-        new Thread(pensadorContemporaneo3).start();
-        new Thread(pensadorContemporaneo4).start();
-        new Thread(pensadorContemporaneo5).start();
+        for (int i = 0; i < filosofos.length; i++) {
+            System.out.println("garfo [Esquerdo]  " + i + " - filosofo  " + filosofos[i].getNome()+ " - garfo [Direito] " + (i + 1) % 5);
+        }
+
+        for (int i = 0; i < semaforos.length; i++) {
+            semaforos[i] = new Semaphore(0);
+        }
+
+        for (int i = 0; i < filosofos.length; i++) {
+            filosofos[i].start();
+        }
+
+        try {
+            Thread.sleep(10000);
+            System.exit(0);
+        } catch (InterruptedException e) {
+            System.out.println("Erro Mesa.iniciarMesa(): " + e.getMessage());
+        }
     }
 }
